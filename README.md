@@ -15,7 +15,7 @@ A command-line tool for analyzing connection logs in both batch and real-time st
 1. Clone the repository:
 ```bash
 git clone https://github.com/peekknuf/Clarity-Log-Parsing-CLI
-cd log-parser
+cd Clarity-Log-Parsing-CLI
 ```
 2. Install in development mode:
 ```bash
