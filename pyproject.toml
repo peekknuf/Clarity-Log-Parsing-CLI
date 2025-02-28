@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "log-parser"
+version = "0.1.0"
+description = "speedrunning the assignment"
+readme = "README.md"
+requires-python = ">=3.6"
+authors = [
+    {name = "peekknuf", email = "peekknuf@gmail.com"}
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "pytest>=7.0.0"
+]
+
+[project.scripts]
+log-parser = "log_parser.cli:main"
+
+[tool.setuptools]
+package-dir = {"log_parser" = "."}
+packages = ["log_parser", "src", "src.parser", "src.processing", "src.utils"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_functions = "test_*"
