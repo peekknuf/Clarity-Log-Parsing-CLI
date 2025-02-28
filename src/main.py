@@ -45,9 +45,9 @@ def main():
 
     # Stream processing command
     stream_parser = subparsers.add_parser(
-        "stream", help="Process a log file in real-time"
+        "stream", help="Process log files in a directory in real-time"
     )
-    stream_parser.add_argument("file", help="Log file to monitor")
+    stream_parser.add_argument("directory", help="Directory containing log files to monitor")
     stream_parser.add_argument(
         "--host", required=True, help="Hostname to track connections to"
     )
@@ -80,7 +80,7 @@ def main():
                 )
 
         elif args.command == "stream":
-            process_stream(args.file, args.host, args.from_host)
+            process_stream(args.directory, args.host, args.from_host)
 
     except KeyboardInterrupt:
         print("\nExiting...")
