@@ -11,6 +11,7 @@ A command-line tool for analyzing connection logs in both batch and real-time st
 ### Prerequisites
 - Python 3.6 or higher
 - pip (Python package installer)
+- pytest
 ### Installing from Source
 1. Clone the repository:
 ```bash
@@ -28,7 +29,7 @@ Process a single log file to analyze connections:
 ```bash
 log-parser batch path/to/logfile.log --host target-host [--start "2024-01-01 00:00:00"] [--end "2024-01-02 00:00:00"]
 ```
-An example command that outputs all the connections to host27 without specific timefrime.
+An example command that outputs all the connections to host27 without specific timeframe.
 ```bash
 log-parser batch logs/Optional-connections.log --host host27
 ```
@@ -44,6 +45,8 @@ Monitor a directory for log files in real-time:
 log-parser stream path/to/log/directory --host target-host [--from-host source-host]
 ```
 This command will be monitoring logs directory for new incoming .log files and scanning them, but would also check the NEW records appended to the existing files.
+At certain, even the most minimal, scale the output of those reports should be stored somewhere, terminal session is def not it, it's fine for a MVP though.
+Also, yes, it's doing every 10 sec instead of every 1 hr because it's easier to test that way. Not a big deal. 
 ```bash
 log-parser stream logs --host host27
 ```
