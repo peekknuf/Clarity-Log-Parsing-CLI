@@ -28,7 +28,10 @@ Process a single log file to analyze connections:
 ```bash
 log-parser batch path/to/logfile.log --host target-host [--start "2024-01-01 00:00:00"] [--end "2024-01-02 00:00:00"]
 ```
-
+An example command that outputs all the connections to host27 without specific timefrime.
+```bash
+log-parser batch logs/Optional-connections.log --host host27
+```
 Options:
 - `--host`: Required. The hostname to analyze connections to
 - `--start`: Optional. Start time in either format:
@@ -39,6 +42,30 @@ Options:
 Monitor a directory for log files in real-time:
 ```bash
 log-parser stream path/to/log/directory --host target-host [--from-host source-host]
+```
+This command will be monitoring logs directory for new incoming .log files and scanning them, but would also check the NEW records appended to the existing files.
+```bash
+log-parser stream logs --host host27
+```
+Example output:
+```bash
+2025-03-01 08:57:34,039 - INFO - Starting real-time monitoring of directory: logs
+2025-03-01 08:57:34,039 - INFO - Tracking connections to host27
+2025-03-01 08:57:34,039 - INFO - Press Ctrl+C to stop monitoring
+2025-03-01 08:57:35,043 - INFO - Found new log file: logs/Optional-connections.log
+
+==================================================
+REPORT: 2025-03-01 08:57:44
+==================================================
+
+Hosts connected TO host27 in the last 10 seconds:
+  None
+
+Hosts that received connections FROM host27 in the last 10 seconds:
+  None
+
+No connections recorded in the last 10 seconds
+==================================================
 ```
 Options:
 - `--host`: Required. The hostname to track connections to
