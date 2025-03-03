@@ -17,15 +17,23 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-    "pytest>=7.0.0"
+    "pytest>=7.0.0",
+    "textual>=0.47.1"
 ]
 
 [project.scripts]
-log-parser = "log_parser.cli:main"
+log-parser = "src.__main__:main"
 
 [tool.setuptools]
-package-dir = {"log_parser" = "."}
-packages = ["log_parser", "src", "src.parser", "src.processing", "src.utils"]
+packages = [
+    "src",
+    "src.parser",
+    "src.processing",
+    "src.utils",
+    "src.tui",
+    "src.tui.screens",
+    "src.cli"
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

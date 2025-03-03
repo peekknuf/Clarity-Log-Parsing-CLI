@@ -164,8 +164,6 @@ def test_count_connections_by_host(sample_log_file):
 
 def test_find_most_active_host(sample_log_file):
     log_path, time_refs = sample_log_file
-
-    # Both host1 and host3 have 3 connections, should return the one with highest count
     host, count = find_most_active_host(log_path)
     assert host in ["host1", "host3"]
     assert count == 3
@@ -210,3 +208,127 @@ def test_connected_hosts_real_data(real_log_file):
     )
     assert "host11" in connected
     assert "host22" not in connected  # This is before our start time
+
+
+def test_parse_log_line_edge_cases():
+    """Test parse_log_line with various edge cases."""
+    # Test empty line
+    assert parse_log_line("") is None
+
+    # Test whitespace only
+    assert parse_log_line("   ") is None
+
+    # Test invalid formats
+    assert parse_log_line("invalid") is None
+    assert parse_log_line("123") is None
+    assert parse_log_line("123 host1") is None
+    assert parse_log_line("host1 host2") is None
+    assert parse_log_line("abc host1 host2") is None
+
+    # Test with extra whitespace
+    assert parse_log_line("  1366815793   quark    garak  ") == (1366815793, "quark", "garak")
+
+    # Test with very large timestamp
+    assert parse_log_line("9999999999 host1 host2") == (9999999999, "host1", "host2")
+
+    # Test with special characters in hostnames
+    assert parse_log_line("1366815793 host-1.domain host-2.domain") == (1366815793, "host-1.domain", "host-2.domain")
+
+
+def test_find_connected_hosts_edge_cases(sample_log_file):
+    """Test find_connected_hosts with edge cases."""
+    log_path, time_refs = sample_log_file
+
+    # Test with non-existent host
+    assert find_connected_hosts(log_path, "non_existent_host") == set()
+
+    # Test with empty time range
+    start_time = end_time = datetime.fromtimestamp(time_refs["start_time"].timestamp())
+    assert find_connected_hosts(log_path, "host1", start_time, end_time) == set()
+
+    # Test with reversed time range
+    with pytest.raises(ValueError):
+        find_connected_hosts(log_path, "host1", time_refs["end_time"], time_refs["start_time"])
+
+
+def test_find_hosts_connected_to_comprehensive(sample_log_file):
+    """Test find_hosts_connected_to with comprehensive scenarios."""
+    log_path, time_refs = sample_log_file
+
+    connected_to = find_hosts_connected_to(log_path, "host1")
+    assert "host2" in connected_to
+    assert "host3" in connected_to
+    assert "host4" in connected_to
+
+    recent_connections = find_hosts_connected_to(
+        log_path, "host1", start_time=time_refs["mid_time"]
+    )
+    assert "host4" in recent_connections
+    assert "host2" not in recent_connections
+
+    assert find_hosts_connected_to(log_path, "non_existent") == set()
+
+
+def test_count_connections_comprehensive(sample_log_file):
+    """Test connection counting with various scenarios."""
+    log_path, time_refs = sample_log_file
+
+    # Test total counts
+    counts = count_connections_by_host(log_path)
+    assert counts["host1"] >= 2  # host1 makes at least 2 connections
+    assert counts["host2"] >= 1  # host2 makes at least 1 connection
+
+    # Test counts within time range
+    recent_counts = count_connections_by_host(
+        log_path, start_time=time_refs["mid_time"]
+    )
+    assert recent_counts["host1"] < counts["host1"]  # Should have fewer recent connections
+
+    # Test with empty time range
+    empty_counts = count_connections_by_host(
+        log_path,
+        start_time=datetime.now(),
+        end_time=datetime.now()
+    )
+    assert empty_counts == {}
+
+
+def test_find_most_active_host_comprehensive(sample_log_file):
+    """Test finding most active host with various scenarios."""
+    log_path, time_refs = sample_log_file
+
+    most_active, count = find_most_active_host(log_path)
+    assert most_active in ["host1", "host2", "host3"]
+    assert count > 0
+
+    recent_active, recent_count = find_most_active_host(
+        log_path, start_time=time_refs["mid_time"]
+    )
+    assert recent_count <= count
+
+    empty_active, empty_count = find_most_active_host(
+        log_path,
+        start_time=datetime.now(),
+        end_time=datetime.now()
+    )
+    assert empty_active is None
+    assert empty_count == 0
+
+
+def test_filter_by_timerange_edge_cases(sample_log_file):
+    """Test filter_by_timerange with edge cases."""
+    log_path, time_refs = sample_log_file
+
+    # Test with equal start and end time
+    timestamp = time_refs["mid_time"]
+    results = list(filter_by_timerange(log_path, timestamp, timestamp))
+    assert len(results) == 0  # Should be empty as it's an instant in time
+
+    # Test with reversed time range
+    with pytest.raises(ValueError):
+        list(filter_by_timerange(log_path, time_refs["end_time"], time_refs["start_time"]))
+
+    # Test with future time range
+    future_time = datetime.now() + timedelta(days=1)
+    results = list(filter_by_timerange(log_path, future_time))
+    assert len(results) == 0  # Should be empty as it's in the future

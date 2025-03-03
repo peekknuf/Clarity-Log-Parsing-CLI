@@ -1,3 +1,5 @@
+"""Command-line interface implementation for log parsing."""
+
 import argparse
 import sys
 import logging
@@ -29,6 +31,7 @@ def parse_datetime(dt_str):
 
 
 def main():
+    """Main CLI command implementation."""
     parser = argparse.ArgumentParser(description="Log file connection analyzer")
     subparsers = parser.add_subparsers(dest="command", help="Commands")
 
@@ -89,7 +92,3 @@ def main():
         return 1
 
     return 0
-
-
-if __name__ == "__main__":
-    sys.exit(main())

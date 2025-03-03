@@ -27,6 +27,9 @@ def filter_by_timerange(
     Generator that yields log entries filtered by time range.
     Handles files that may be partially time-sorted (within 5 minutes).
     """
+    if start_time and end_time and end_time < start_time:
+        raise ValueError("End time must be after start time")
+
     start_timestamp = int(start_time.timestamp()) if start_time else 0
     end_timestamp = int(end_time.timestamp()) if end_time else float("inf")
 

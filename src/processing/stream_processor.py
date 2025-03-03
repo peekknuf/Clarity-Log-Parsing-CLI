@@ -19,14 +19,14 @@ def create_file_tracker(file_path: str) -> Dict[str, any]:
     }
 
 def process_stream(
-    log_dir: str, 
-    target_host: str, 
+    log_dir: str,
+    target_host: str,
     from_host: Optional[str] = None,
     max_iterations: Optional[int] = None
 ) -> None:
     """
     Monitor a directory for log files and report connection statistics every 10 seconds.
-    
+
     Args:
         log_dir: Directory containing log files to monitor
         target_host: Host to track connections to
@@ -56,7 +56,6 @@ def process_stream(
 
             now = datetime.now()
 
-            # checking every second if there's a new file
             if now - last_dir_check >= timedelta(seconds=1):
                 for file_path in log_dir_path.glob("*.log"):
                     str_path = str(file_path)
@@ -106,7 +105,6 @@ def process_stream(
                 except Exception as e:
                     logger.error(f"Error processing {file_path}: {e}")
 
-            # it's set to generate every 10 sec, not 1hr cause it' easier to test, would change # later.
             if now - last_report_time >= timedelta(seconds=10):
                 generate_report(target_host, connections_to, connections_from, connection_counts)
                 last_report_time = now

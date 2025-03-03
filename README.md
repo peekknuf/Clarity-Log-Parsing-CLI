@@ -1,17 +1,21 @@
 # Log Parser
-A command-line tool for analyzing connection logs in both batch and real-time streaming modes.
+A tool for analyzing connection logs with both Terminal User Interface (TUI) and command-line (CLI) modes.
 
 ## Features
+- **Interactive TUI**: User-friendly terminal interface for easy log analysis
 - **Batch Processing**: Analyze log files within specified time ranges
 - **Real-time Monitoring**: Watch directories for new log files and monitor connections
 - **Flexible Time Filtering**: Filter connections by start and end times
 - **Connection Statistics**: Track connections to/from specific hosts
 - **Activity Reports**: Generate periodic reports of connection activities
+
 ## Installation
 ### Prerequisites
 - Python 3.6 or higher
 - pip (Python package installer)
 - pytest
+- textual (for TUI interface)
+
 ### Installing from Source
 1. Clone the repository:
 ```bash
@@ -22,14 +26,36 @@ cd Clarity-Log-Parsing-CLI
 ```bash
 pip install -e .
 ```
+
 ## Usage
-The tool provides two main commands: `batch` and `stream`.
-### Batch Processing
+The tool can be used in two modes: TUI (Terminal User Interface) or CLI (Command Line Interface).
+
+### TUI Mode
+Launch the interactive terminal interface by running:
+```bash
+log-parser
+```
+
+The TUI provides an interactive interface where you can:
+- Select between Stream and Batch processing modes
+- Browse and select log files/directories using a directory tree
+- Enter host information
+- Optionally specify time ranges for batch processing
+- View results in a formatted screen
+- Navigate using keyboard:
+  - TAB/Shift+TAB: Move between fields
+  - Enter: Submit/Select
+  - Ctrl+C: Quit
+
+### CLI Mode
+The CLI provides two main commands: `batch` and `stream`.
+
+#### Batch Processing
 Process a single log file to analyze connections:
 ```bash
 log-parser batch path/to/logfile.log --host target-host [--start "2024-01-01 00:00:00"] [--end "2024-01-02 00:00:00"]
 ```
-An example command that outputs all the connections to host27 without specific timeframe.
+An example command that outputs all the connections to host27 without specific timeframe:
 ```bash
 log-parser batch logs/Optional-connections.log --host host27
 ```
@@ -39,17 +65,20 @@ Options:
   - ISO format with optional timezone (e.g., "2024-01-01T00:00:00" or "2024-01-01T00:00:00Z")
   - Simple format without timezone (e.g., "2024-01-01 00:00:00")
 - `--end`: Optional. End time (same format options as --start)
-### Stream Processing
+
+#### Stream Processing
 Monitor a directory for log files in real-time:
 ```bash
 log-parser stream path/to/log/directory --host target-host [--from-host source-host]
 ```
-This command will be monitoring logs directory for new incoming .log files and scanning them, but would also check the NEW records appended to the existing files.
-At certain, even the most minimal, scale the output of those reports should be stored somewhere, terminal session is def not it, it's fine for a MVP though.
-Also, yes, it's doing every 10 sec instead of every 1 hr because it's easier to test that way. Not a big deal. 
+This command will monitor the logs directory for new incoming .log files and scan them, as well as check NEW records appended to existing files.
+Reports are generated every 10 seconds (configurable for production use).
+
+Example:
 ```bash
 log-parser stream logs --host host27
 ```
+
 Example output:
 ```bash
 2025-03-01 08:57:34,039 - INFO - Starting real-time monitoring of directory: logs
@@ -70,10 +99,14 @@ Hosts that received connections FROM host27 in the last 10 seconds:
 No connections recorded in the last 10 seconds
 ==================================================
 ```
+Or if you want to see a more realistic example, you can run this command to append a new record to the log file:
+```bash
+echo "$(date +%s) host1 host27" >> logs/Optional-connections.log
+```
+
 Options:
 - `--host`: Required. The hostname to track connections to
 - `--from-host`: Optional. Track connections from this specific host
-
 
 ## Log File Format
 The log files should follow this format:
@@ -91,7 +124,7 @@ Example:
 1. Create a virtual environment:
 ```bash
 python -m venv venv
-source venv/bin/activate 
+source venv/bin/activate
 ```
 2. Install development dependencies:
 ```bash
@@ -103,13 +136,18 @@ Run the test suite:
 ```bash
 pytest
 ```
+
 ### Code Structure
-- `src/`  
+- `src/`
+  - `cli/`: Command-line interface implementation
+  - `tui/`: Terminal user interface implementation
+    - `screens/`: TUI screen components
+    - `styles.py`: TUI styling
   - `parser/`: Log parsing functionality
-  - `processing/`: Batch and stream processing logic  
+  - `processing/`: Batch and stream processing logic
   - `utils/`: Utility functions
+  - `__main__.py`: Main entry point
 - `tests/`: Test suite
-- `cli.py`: The entrypoint to command-line interface
 
 ## Contributing (kinda optimistic ngl)
 1. Fork the repository
@@ -122,5 +160,5 @@ pytest
 
 Meh
 
- 
+
 
