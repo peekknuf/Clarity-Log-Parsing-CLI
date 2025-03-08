@@ -1,7 +1,6 @@
 """Command-line interface implementation for log parsing."""
 
 import argparse
-import sys
 import logging
 from datetime import datetime
 

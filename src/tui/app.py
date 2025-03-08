@@ -3,18 +3,23 @@
 from textual.app import App, ComposeResult
 from textual.containers import Container
 from textual.widgets import (
-    Header, Footer, Button, RadioSet, RadioButton,
-    Input, Label, DirectoryTree
+    Header,
+    Footer,
+    Button,
+    RadioSet,
+    RadioButton,
+    Input,
+    Label,
+    DirectoryTree,
 )
 from textual.binding import Binding
-from pathlib import Path
 
 from src.processing.batch_processor import process_batch
-from src.processing.stream_processor import process_stream, generate_report
 from src.tui.screens.results_screen import ResultsScreen
 from src.tui.screens.stream_screen import StreamScreen
 from src.utils.utils import parse_datetime_input
 from src.tui.styles import MAIN_STYLES
+
 
 class LogParserApp(App):
     """Main TUI application for log parsing."""
@@ -36,32 +41,44 @@ class LogParserApp(App):
             RadioSet(
                 RadioButton("Stream Mode", value=True),
                 RadioButton("Batch Mode"),
-                id="mode-select"
+                id="mode-select",
             ),
             Container(
                 Label("Log Directory:", classes="form-label"),
                 DirectoryTree(".", id="file-select"),
-                classes="directory-tree-container"
+                classes="directory-tree-container",
             ),
             Container(
                 Container(
                     Label("Host:", classes="form-label"),
-                    Input(placeholder="Enter host to monitor", id="host-input", classes="form-input"),
-                    classes="form-row"
+                    Input(
+                        placeholder="Enter host to monitor",
+                        id="host-input",
+                        classes="form-input",
+                    ),
+                    classes="form-row",
                 ),
                 Container(
                     Label("Start Time:", classes="form-label"),
-                    Input(placeholder="YYYY-MM-DD HH:MM:SS", id="start-time", classes="form-input"),
-                    classes="form-row"
+                    Input(
+                        placeholder="YYYY-MM-DD HH:MM:SS",
+                        id="start-time",
+                        classes="form-input",
+                    ),
+                    classes="form-row",
                 ),
                 Container(
                     Label("End Time:", classes="form-label"),
-                    Input(placeholder="YYYY-MM-DD HH:MM:SS", id="end-time", classes="form-input"),
-                    classes="form-row"
+                    Input(
+                        placeholder="YYYY-MM-DD HH:MM:SS",
+                        id="end-time",
+                        classes="form-input",
+                    ),
+                    classes="form-row",
                 ),
                 Button("Submit", variant="primary", id="submit-button"),
-                id="params-form"
-            )
+                id="params-form",
+            ),
         )
 
         yield Footer()
@@ -156,6 +173,7 @@ class LogParserApp(App):
 
         except ValueError as e:
             self.notify(str(e), severity="error")
+
 
 def run_tui():
     """Run the TUI application."""

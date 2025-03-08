@@ -4,7 +4,7 @@ from textual.app import ComposeResult
 from textual.containers import Container
 from textual.widgets import Header, Footer, Static, Log
 from textual.screen import Screen
-from textual.worker import Worker, get_current_worker
+from textual.worker import get_current_worker
 from datetime import datetime, timedelta
 from pathlib import Path
 import os
