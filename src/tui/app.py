@@ -27,8 +27,7 @@ class LogParserApp(App):
     CSS = MAIN_STYLES
 
     BINDINGS = [
-        Binding("tab", "focus_next", "Focus Next", show=False),
-        Binding("shift+tab", "focus_previous", "Focus Previous", show=False),
+        Binding("tab", "focus_next", "Next", show=True),
         Binding("enter", "submit", "Submit", show=True),
         Binding("ctrl+c", "quit", "Quit", show=True),
     ]
@@ -54,7 +53,6 @@ class LogParserApp(App):
                     Input(
                         placeholder="Enter host to monitor",
                         id="host-input",
-                        classes="form-input",
                     ),
                     classes="form-row",
                 ),
@@ -63,7 +61,6 @@ class LogParserApp(App):
                     Input(
                         placeholder="YYYY-MM-DD HH:MM:SS",
                         id="start-time",
-                        classes="form-input",
                     ),
                     classes="form-row",
                 ),
@@ -72,7 +69,6 @@ class LogParserApp(App):
                     Input(
                         placeholder="YYYY-MM-DD HH:MM:SS",
                         id="end-time",
-                        classes="form-input",
                     ),
                     classes="form-row",
                 ),
@@ -84,44 +80,29 @@ class LogParserApp(App):
         yield Footer()
 
     def on_mount(self) -> None:
-        # Focus the mode select when the app starts
+        """Focus the mode select when the app starts."""
         self.query_one("#mode-select").focus()
 
     def action_focus_next(self) -> None:
-        # Define the focus order
+        """Handle tab key to move focus to the next widget."""
+        # Define the widget order
+        widget_ids = ["mode-select", "file-select", "host-input", "start-time", "end-time", "submit-button"]
         current = self.focused
-        if current is None:
-            self.query_one("#mode-select").focus()
-        elif isinstance(current.parent, RadioSet):
-            self.query_one("#file-select").focus()
-        elif isinstance(current, DirectoryTree):
-            self.query_one("#host-input").focus()
-        elif current.id == "host-input":
-            self.query_one("#start-time").focus()
-        elif current.id == "start-time":
-            self.query_one("#end-time").focus()
-        elif current.id == "end-time":
-            self.query_one("#submit-button").focus()
-        elif current.id == "submit-button":
-            self.query_one("#mode-select").focus()
 
-    def action_focus_previous(self) -> None:
-        # Define the reverse focus order
-        current = self.focused
+        # If nothing is focused, start with the first widget
         if current is None:
-            self.query_one("#submit-button").focus()
-        elif isinstance(current.parent, RadioSet):
-            self.query_one("#submit-button").focus()
-        elif isinstance(current, DirectoryTree):
-            self.query_one("#mode-select").focus()
-        elif current.id == "host-input":
-            self.query_one("#file-select").focus()
-        elif current.id == "start-time":
-            self.query_one("#host-input").focus()
-        elif current.id == "end-time":
-            self.query_one("#start-time").focus()
-        elif current.id == "submit-button":
-            self.query_one("#end-time").focus()
+            self.query_one(f"#{widget_ids[0]}").focus()
+            return
+
+        # Find current widget's index and move to next
+        for i, widget_id in enumerate(widget_ids):
+            if current.id == widget_id:
+                next_index = (i + 1) % len(widget_ids)
+                self.query_one(f"#{widget_ids[next_index]}").focus()
+                return
+
+        # If current widget not in list, start from beginning
+        self.query_one(f"#{widget_ids[0]}").focus()
 
     def action_submit(self) -> None:
         """Handle form submission."""
@@ -133,14 +114,12 @@ class LogParserApp(App):
 
     def process_logs(self) -> None:
         """Process logs based on selected mode and parameters."""
-        # Get form values
         mode_select = self.query_one("#mode-select")
         file_select = self.query_one("#file-select")
         host_input = self.query_one("#host-input")
         start_time = self.query_one("#start-time")
         end_time = self.query_one("#end-time")
 
-        # Validate inputs
         if not file_select.cursor_node:
             self.notify("Please select a log directory", severity="error")
             return
@@ -152,18 +131,14 @@ class LogParserApp(App):
         directory = str(file_select.cursor_node.data.path)
         host = host_input.value.strip()
 
-        # Stream mode
         if mode_select.pressed_button.label == "Stream Mode":
             self.push_screen(StreamScreen(directory, host))
             return
 
-        # Batch mode
         try:
-            # Make time inputs optional
             start = parse_datetime_input(start_time.value) if start_time.value else None
             end = parse_datetime_input(end_time.value) if end_time.value else None
 
-            # Only validate time range if both times are provided
             if start and end and start >= end:
                 self.notify("Start time must be before end time", severity="error")
                 return
