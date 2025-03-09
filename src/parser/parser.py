@@ -112,11 +112,9 @@ def find_most_active_host(
     Find the host that generated the most connections within the time range.
     Returns tuple of (hostname, connection_count).
     """
-    connection_counts = count_connections_by_host(
-        log_file, start_time, end_time
-    )
+    connection_counts = count_connections_by_host(log_file, start_time, end_time)
 
     if not connection_counts:
-        return None, 0
+        return "", 0
 
     return max(connection_counts.items(), key=lambda x: x[1])
