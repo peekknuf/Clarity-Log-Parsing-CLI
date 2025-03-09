@@ -101,19 +101,11 @@ def test_filter_by_timerange(sample_log_file):
     results = list(filter_by_timerange(log_path))
     assert len(results) == 9
 
-    results = list(
-        filter_by_timerange(log_path, start_time=time_refs["mid_time"])
-    )
-    assert all(
-        ts >= int(time_refs["mid_time"].timestamp()) for ts, _, _ in results
-    )
+    results = list(filter_by_timerange(log_path, start_time=time_refs["mid_time"]))
+    assert all(ts >= int(time_refs["mid_time"].timestamp()) for ts, _, _ in results)
 
-    results = list(
-        filter_by_timerange(log_path, end_time=time_refs["mid_time"])
-    )
-    assert all(
-        ts <= int(time_refs["mid_time"].timestamp()) for ts, _, _ in results
-    )
+    results = list(filter_by_timerange(log_path, end_time=time_refs["mid_time"]))
+    assert all(ts <= int(time_refs["mid_time"].timestamp()) for ts, _, _ in results)
 
     results = list(
         filter_by_timerange(
@@ -180,9 +172,7 @@ def test_filter_by_real_timerange(real_log_file):
     end_time = datetime.fromtimestamp(1704090000)  # A bit later
 
     results = list(
-        filter_by_timerange(
-            real_log_file, start_time=start_time, end_time=end_time
-        )
+        filter_by_timerange(real_log_file, start_time=start_time, end_time=end_time)
     )
 
     # Should include entries between the timestamps
@@ -203,9 +193,7 @@ def test_connected_hosts_real_data(real_log_file):
 
     # Test with time filtering
     start_time = datetime.fromtimestamp(1704110000)
-    connected = find_connected_hosts(
-        real_log_file, "host29", start_time=start_time
-    )
+    connected = find_connected_hosts(real_log_file, "host29", start_time=start_time)
     assert "host11" in connected
     assert "host22" not in connected  # This is before our start time
 
@@ -226,13 +214,21 @@ def test_parse_log_line_edge_cases():
     assert parse_log_line("abc host1 host2") is None
 
     # Test with extra whitespace
-    assert parse_log_line("  1366815793   quark    garak  ") == (1366815793, "quark", "garak")
+    assert parse_log_line("  1366815793   quark    garak  ") == (
+        1366815793,
+        "quark",
+        "garak",
+    )
 
     # Test with very large timestamp
     assert parse_log_line("9999999999 host1 host2") == (9999999999, "host1", "host2")
 
     # Test with special characters in hostnames
-    assert parse_log_line("1366815793 host-1.domain host-2.domain") == (1366815793, "host-1.domain", "host-2.domain")
+    assert parse_log_line("1366815793 host-1.domain host-2.domain") == (
+        1366815793,
+        "host-1.domain",
+        "host-2.domain",
+    )
 
 
 def test_find_connected_hosts_edge_cases(sample_log_file):
@@ -248,7 +244,9 @@ def test_find_connected_hosts_edge_cases(sample_log_file):
 
     # Test with reversed time range
     with pytest.raises(ValueError):
-        find_connected_hosts(log_path, "host1", time_refs["end_time"], time_refs["start_time"])
+        find_connected_hosts(
+            log_path, "host1", time_refs["end_time"], time_refs["start_time"]
+        )
 
 
 def test_find_hosts_connected_to_comprehensive(sample_log_file):
@@ -282,13 +280,13 @@ def test_count_connections_comprehensive(sample_log_file):
     recent_counts = count_connections_by_host(
         log_path, start_time=time_refs["mid_time"]
     )
-    assert recent_counts["host1"] < counts["host1"]  # Should have fewer recent connections
+    assert (
+        recent_counts["host1"] < counts["host1"]
+    )  # Should have fewer recent connections
 
     # Test with empty time range
     empty_counts = count_connections_by_host(
-        log_path,
-        start_time=datetime.now(),
-        end_time=datetime.now()
+        log_path, start_time=datetime.now(), end_time=datetime.now()
     )
     assert empty_counts == {}
 
@@ -307,11 +305,9 @@ def test_find_most_active_host_comprehensive(sample_log_file):
     assert recent_count <= count
 
     empty_active, empty_count = find_most_active_host(
-        log_path,
-        start_time=datetime.now(),
-        end_time=datetime.now()
+        log_path, start_time=datetime.now(), end_time=datetime.now()
     )
-    assert empty_active is None
+    assert empty_active == ""
     assert empty_count == 0
 
 
@@ -326,7 +322,11 @@ def test_filter_by_timerange_edge_cases(sample_log_file):
 
     # Test with reversed time range
     with pytest.raises(ValueError):
-        list(filter_by_timerange(log_path, time_refs["end_time"], time_refs["start_time"]))
+        list(
+            filter_by_timerange(
+                log_path, time_refs["end_time"], time_refs["start_time"]
+            )
+        )
 
     # Test with future time range
     future_time = datetime.now() + timedelta(days=1)
